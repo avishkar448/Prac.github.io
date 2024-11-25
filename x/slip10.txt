@@ -1,0 +1,70 @@
+Q.1. Write a python program to transform data with Principal Component Analysis (PCA).
+Use iris dataset.
+
+import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+X = iris.data  # Features
+y = iris.target  # Labels
+
+print(f"Original data shape: {X.shape}")
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
+
+print(f"Transformed data shape: {X_pca.shape}")
+
+df_pca = pd.DataFrame(X_pca, columns=['PCA1', 'PCA2'])
+
+df_pca['Species'] = iris.target_names[y]
+
+plt.figure(figsize=(8, 6))
+for species in iris.target_names:
+    plt.scatter(df_pca[df_pca['Species'] == species]['PCA1'], 
+                df_pca[df_pca['Species'] == species]['PCA2'], 
+                label=species)
+plt.title('PCA of Iris Dataset')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend()
+plt.show()
+
+print(f"Explained variance ratio: {pca.explained_variance_ratio_}")
+
+
+
+Q.2. Write a Python program to prepare Scatter Plot for Iris Dataset. Convert Categorical
+values in to numeric.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X = iris.data  # Features
+y = iris.target  # Labels
+
+df = pd.DataFrame(X, columns=iris.feature_names)
+
+df['Species'] = y
+
+df['Species'] = df['Species'].map({0: 'Setosa', 1: 'Versicolor', 2: 'Virginica'})
+
+print(df.head())
+
+plt.figure(figsize=(8, 6))
+colors = ['red', 'green', 'blue']  # Colors for each species
+
+for i, species in enumerate(df['Species'].unique()):
+    subset = df[df['Species'] == species]
+    plt.scatter(subset['sepal length (cm)'], subset['sepal width (cm)'], 
+                label=species, color=colors[i], alpha=0.6, edgecolors='w', s=100)
+
+plt.title('Scatter Plot of Iris Dataset (Sepal Length vs Sepal Width)')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.legend()
+plt.show()

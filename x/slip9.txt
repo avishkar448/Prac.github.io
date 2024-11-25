@@ -1,0 +1,96 @@
+Q.1. Implement Ridge Regression and Lasso regression model using boston_houses.csv
+and take only ‘RM’ and ‘Price’ of the houses. Divide the data as training and testing
+data. Fit line using Ridge regression and to find price of a house if it contains 5 rooms
+and compare results. 
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("boston_houses.csv")
+
+X = data[['RM']]
+y = data['Price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+ridge_model = Ridge(alpha=1.0)
+ridge_model.fit(X_train, y_train)
+
+lasso_model = Lasso(alpha=1.0)
+lasso_model.fit(X_train, y_train)
+
+ridge_pred = ridge_model.predict(X_test)
+lasso_pred = lasso_model.predict(X_test)
+
+ridge_mse = mean_squared_error(y_test, ridge_pred)
+lasso_mse = mean_squared_error(y_test, lasso_pred)
+
+rooms = np.array([[5]])
+ridge_price = ridge_model.predict(rooms)[0]
+lasso_price = lasso_model.predict(rooms)[0]
+
+print(f"Ridge Regression MSE: {ridge_mse:.2f}")
+print(f"Lasso Regression MSE: {lasso_mse:.2f}")
+print(f"Predicted price (Ridge) for a house with 5 rooms: {ridge_price:.2f}")
+print(f"Predicted price (Lasso) for a house with 5 rooms: {lasso_price:.2f}")
+
+plt.figure(figsize=(10, 6))
+plt.scatter(X, y, color='blue', label='Actual Data')
+plt.plot(X, ridge_model.predict(X), color='red', label='Ridge Regression Line')
+plt.plot(X, lasso_model.predict(X), color='green', label='Lasso Regression Line')
+plt.xlabel('Average Number of Rooms (RM)')
+plt.ylabel('Price')
+plt.title('Ridge vs Lasso Regression')
+plt.legend()
+plt.show()
+
+
+Q.2 Write a python program to implement Linear SVM using UniversalBank.csv 
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("UniversalBank.csv")
+
+print(data.head())
+
+data = data.drop(columns=['ID', 'ZIP Code'])
+
+X = data.drop(columns=['Personal Loan'])  
+y = data['Personal Loan']                 
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+svm_model = SVC(kernel='linear', random_state=42)
+svm_model.fit(X_train_scaled, y_train)
+
+y_pred = svm_model.predict(X_test_scaled)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+conf_matrix = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Accepted', 'Accepted'], yticklabels=['Not Accepted', 'Accepted'])
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+support_vectors = svm_model.support_vectors_
+print(f"Number of Support Vectors: {len(support_vectors)}")

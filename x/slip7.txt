@@ -1,0 +1,96 @@
+Q.1. Fit the simple linear regression model to Salary_positions.csv data. Predict the sa
+of level 11 and level 12 employees.
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+data = pd.read_csv("Salary_positions.csv")
+
+print("Dataset Head:\n", data.head())
+
+X = data[['Level']].values  # Independent variable (Employee Level)
+y = data['Salary'].values   # Dependent variable (Salary)
+
+model = LinearRegression()
+model.fit(X, y)
+
+levels_to_predict = np.array([[11], [12]])
+predicted_salaries = model.predict(levels_to_predict)
+
+print(f"Predicted salary for level 11: {predicted_salaries[0]:.2f}")
+print(f"Predicted salary for level 12: {predicted_salaries[1]:.2f}")
+
+plt.figure(figsize=(8, 5))
+plt.scatter(X, y, color='blue', label='Actual Data')
+plt.plot(X, model.predict(X), color='red', label='Regression Line')
+plt.scatter(levels_to_predict, predicted_salaries, color='green', label='Predictions (Level 11 & 12)', s=100)
+plt.xlabel("Employee Level")
+plt.ylabel("Salary")
+plt.title("Simple Linear Regression - Salary Prediction")
+plt.legend()
+plt.show()
+
+
+Q.2. Write a python program to implement Naive Bayes on weather forecast dataset.
+(Weather.csv)
+Outlook,Temperature,Humidity,Windy,Play
+Sunny,Hot,High,False,No
+Sunny,Hot,High,True,No
+Overcast,Hot,High,False,Yes
+Rain,Mild,High,False,Yes
+Rain,Cool,Normal,False,Yes
+Rain,Cool,Normal,True,No
+Overcast,Cool,Normal,True,Yes
+Sunny,Mild,High,False,No
+Sunny,Cool,Normal,False,Yes
+Rain,Mild,Normal,False,Yes
+Sunny,Mild,Normal,True,Yes
+Overcast,Mild,High,True,Yes
+Overcast,Hot,Normal,False,Yes
+Rain,Mild,High,True,No
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report
+
+data = pd.read_csv('weather.csv')
+
+print("Dataset Head:\n", data.head())
+
+label_encoders = {}
+for column in data.columns[:-1]:  
+    le = LabelEncoder()
+    data[column] = le.fit_transform(data[column])
+    label_encoders[column] = le
+
+X = data.iloc[:, :-1]  
+y = data.iloc[:, -1]   
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}\n")
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+
+new_sample = pd.DataFrame({
+    'Outlook': [label_encoders['Outlook'].transform(['Sunny'])[0]],
+    'Temperature': [label_encoders['Temperature'].transform(['Cool'])[0]],
+    'Humidity': [label_encoders['Humidity'].transform(['High'])[0]],
+    'Windy': [label_encoders['Windy'].transform([True])[0]],
+})
+
+prediction = model.predict(new_sample)
+result = label_encoders['Play'].inverse_transform(prediction)
+print(f"Prediction for the new sample (Sunny, Cool, High, True): {result[0]}")
+

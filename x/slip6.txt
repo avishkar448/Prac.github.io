@@ -1,0 +1,100 @@
+Q.1. Write a python program to implement Polynomial Linear Regression for
+Boston Housing Dataset
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+url = "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
+data = pd.read_csv(url)
+
+X = data[['rm']]  # Predictor (average number of rooms)
+y = data['medv']  # Target (median value of homes)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+degree = 2  # You can change this to experiment with different degrees
+poly_features = PolynomialFeatures(degree=degree)
+X_train_poly = poly_features.fit_transform(X_train)
+X_test_poly = poly_features.transform(X_test)
+
+model = LinearRegression()
+model.fit(X_train_poly, y_train)
+
+y_pred = model.predict(X_test_poly)
+
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R-squared: {r2:.2f}")
+
+plt.figure(figsize=(10, 6))
+plt.scatter(X, y, color='blue', label='Actual Data')
+plt.scatter(X_test, y_test, color='green', label='Test Data')
+plt.plot(np.sort(X_test['rm']), np.sort(y_pred), color='red', label=f'Polynomial Regression (Degree {degree})')
+plt.xlabel('Average Number of Rooms (RM)')
+plt.ylabel('Median Value of Homes (Price)')
+plt.title('Polynomial Linear Regression - Boston Housing Dataset')
+plt.legend()
+plt.show()
+
+
+Q.2. Use K-means clustering model and classify the employees into various income groups
+or clusters. Preprocess data if require (i.e. drop missing or null values). 
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data = pd.read_csv('employees.csv')
+
+print("Dataset Head:\n", data.head())
+
+data.dropna(inplace=True)
+
+features = ['Age', 'Income']
+X = data[features]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+inertia = []
+k_values = range(1, 11)
+for k in k_values:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    inertia.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 5))
+plt.plot(k_values, inertia, marker='o', linestyle='--')
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('Inertia')
+plt.title('Elbow Method for Optimal k')
+plt.show()
+
+optimal_k = 3
+kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+data['Cluster'] = kmeans.fit_predict(X_scaled)
+
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=data, x='Age', y='Income', hue='Cluster', palette='viridis', s=100)
+plt.title('K-Means Clustering of Employees')
+plt.xlabel('Age')
+plt.ylabel('Income')
+plt.legend(title='Cluster')
+plt.show()
+
+centroids = scaler.inverse_transform(kmeans.cluster_centers_)
+print("\nCluster Centroids (Original Scale):")
+print(pd.DataFrame(centroids, columns=features))
+
+print("\nSample Data with Clusters:")
+print(data.head())
