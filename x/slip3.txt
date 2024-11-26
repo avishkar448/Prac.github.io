@@ -1,0 +1,147 @@
+Q3)SAD : Write a Java Program to implement command pattern to test Remote Control.
+
+interface Command {
+    void execute();
+    void undo();
+}
+
+class Light {
+    private String location;
+
+    public Light(String location) {
+        this.location = location;
+    }
+
+    public void turnOn() {
+        System.out.println(location + " light is ON.");
+    }
+
+    public void turnOff() {
+        System.out.println(location + " light is OFF.");
+    }
+}
+
+class LightOnCommand implements Command {
+    private Light light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.turnOn();
+    }
+
+    @Override
+    public void undo() {
+        light.turnOff();
+    }
+}
+
+class LightOffCommand implements Command {
+    private Light light;
+
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.turnOff();
+    }
+
+    @Override
+    public void undo() {
+        light.turnOn();
+    }
+}
+
+class RemoteControl {
+    private Command[] onCommands;
+    private Command[] offCommands;
+    private Command lastCommand;
+
+    public RemoteControl() {
+        onCommands = new Command[7];
+        offCommands = new Command[7];
+
+        Command noCommand = new NoCommand();
+        for (int i = 0; i < 7; i++) {
+            onCommands[i] = noCommand;
+            offCommands[i] = noCommand;
+        }
+        lastCommand = noCommand;
+    }
+
+    public void setCommand(int slot, Command onCommand, Command offCommand) {
+        onCommands[slot] = onCommand;
+        offCommands[slot] = offCommand;
+    }
+
+    public void pressOnButton(int slot) {
+        onCommands[slot].execute();
+        lastCommand = onCommands[slot];
+    }
+
+    public void pressOffButton(int slot) {
+        offCommands[slot].execute();
+        lastCommand = offCommands[slot];
+    }
+
+    public void pressUndoButton() {
+        System.out.println("Undoing last action:");
+        lastCommand.undo();
+    }
+}
+
+class NoCommand implements Command {
+    @Override
+    public void execute() {
+        System.out.println("No command assigned.");
+    }
+
+    @Override
+    public void undo() {
+        System.out.println("No command to undo.");
+    }
+}
+
+public class RemoteControlTest {
+    public static void main(String[] args) {
+        RemoteControl remote = new RemoteControl();
+
+        Light livingRoomLight = new Light("Living Room");
+
+        LightOnCommand livingRoomLightOn = new LightOnCommand(livingRoomLight);
+        LightOffCommand livingRoomLightOff = new LightOffCommand(livingRoomLight);
+
+        remote.setCommand(0, livingRoomLightOn, livingRoomLightOff);
+
+        System.out.println("Testing Remote Control:");
+        remote.pressOnButton(0); // Turns on the light
+        remote.pressOffButton(0); // Turns off the light
+        remote.pressUndoButton(); // Undoes the last action (turns light back on)
+    }
+}
+
+
+IoT : Programming of Raspberry Pi to detect temperature using temperature sensor
+
+import Adafruit_DHT
+
+DHT_SENSOR = Adafruit_DHT.DHT11
+DHT_PIN = 4  # GPIO pin connected to the data pin of the sensor
+
+def read_temperature():
+    humidity, temperature = Adafruit_DHT.read(DHT_SENSOR, DHT_PIN)
+
+    if humidity is not None and temperature is not None:
+        print(f"Temperature: {temperature:.1f}°C")
+        print(f"Humidity: {humidity:.1f}%")
+    else:
+        print("Failed to retrieve data from the sensor. Check connections.")
+
+if __name__ == "__main__":
+    while True:
+        read_temperature()

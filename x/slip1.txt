@@ -1,0 +1,82 @@
+Q1)SAD : Write a Java Program to implement I/O Decorator for converting uppercase
+letters to lower case letters.
+
+import java.io.*;
+
+class LowerCaseInputStream extends FilterInputStream {
+    protected LowerCaseInputStream(InputStream in) {
+        super(in);
+    }
+
+    @Override
+    public int read() throws IOException {
+        int character = super.read();
+        return (character == -1) ? character : Character.toLowerCase((char) character);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int result = super.read(b, off, len);
+        if (result != -1) {
+            for (int i = off; i < off + result; i++) {
+                b[i] = (byte) Character.toLowerCase((char) b[i]);
+            }
+        }
+        return result;
+    }
+}
+
+public class LowerCaseDecoratorDemo {
+    public static void main(String[] args) {
+        String input = "Hello, JAVA DECORATOR PATTERN!";
+        System.out.println("Original Input: " + input);
+
+        InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+
+        try (InputStream lowerCaseInputStream = new LowerCaseInputStream(inputStream);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(lowerCaseInputStream))) {
+
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+
+            System.out.println("Modified Input: " + result.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+IoT : To write a program to connect with the available Wi-Fi using Arduino
+
+#include <ESP8266WiFi.h>
+
+const char* ssid = "YourWiFiNetworkName";
+const char* password = "YourWiFiPassword";
+
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  Serial.println();
+  Serial.println("Connecting to Wi-Fi...");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("Wi-Fi connected successfully!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  
+}
+
+

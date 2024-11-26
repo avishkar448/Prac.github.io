@@ -1,96 +1,92 @@
-Q.1. Fit the simple linear regression model to Salary_positions.csv data. Predict the sa
-of level 11 and level 12 employees.
+Q7)SAD : Write a JAVA Program to implement built-in support (java.util.Observable)
+Weather station with members temperature, humidity, pressure and methods -
+mesurmentsChanged(),setMesurment(), getTemperature(), getHumidity(),
+getPressure()
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+import java.util.Observable;
 
-data = pd.read_csv("Salary_positions.csv")
+class WeatherData extends Observable {
+    private float temperature;
+    private float humidity;
+    private float pressure;
 
-print("Dataset Head:\n", data.head())
+    public void measurementsChanged() {
+        setChanged();
+        notifyObservers();
+    }
 
-X = data[['Level']].values  # Independent variable (Employee Level)
-y = data['Salary'].values   # Dependent variable (Salary)
+    public void setMeasurements(float temperature, float humidity, float pressure) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        measurementsChanged();
+    }
 
-model = LinearRegression()
-model.fit(X, y)
+    public float getTemperature() {
+        return temperature;
+    }
 
-levels_to_predict = np.array([[11], [12]])
-predicted_salaries = model.predict(levels_to_predict)
+    public float getHumidity() {
+        return humidity;
+    }
 
-print(f"Predicted salary for level 11: {predicted_salaries[0]:.2f}")
-print(f"Predicted salary for level 12: {predicted_salaries[1]:.2f}")
+    public float getPressure() {
+        return pressure;
+    }
+}
 
-plt.figure(figsize=(8, 5))
-plt.scatter(X, y, color='blue', label='Actual Data')
-plt.plot(X, model.predict(X), color='red', label='Regression Line')
-plt.scatter(levels_to_predict, predicted_salaries, color='green', label='Predictions (Level 11 & 12)', s=100)
-plt.xlabel("Employee Level")
-plt.ylabel("Salary")
-plt.title("Simple Linear Regression - Salary Prediction")
-plt.legend()
-plt.show()
+class CurrentConditionsDisplay implements java.util.Observer {
+    private float temperature;
+    private float humidity;
+    private float pressure;
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof WeatherData) {
+            WeatherData weatherData = (WeatherData) o;
+            this.temperature = weatherData.getTemperature();
+            this.humidity = weatherData.getHumidity();
+            this.pressure = weatherData.getPressure();
+            display();
+        }
+    }
 
-Q.2. Write a python program to implement Naive Bayes on weather forecast dataset.
-(Weather.csv)
-Outlook,Temperature,Humidity,Windy,Play
-Sunny,Hot,High,False,No
-Sunny,Hot,High,True,No
-Overcast,Hot,High,False,Yes
-Rain,Mild,High,False,Yes
-Rain,Cool,Normal,False,Yes
-Rain,Cool,Normal,True,No
-Overcast,Cool,Normal,True,Yes
-Sunny,Mild,High,False,No
-Sunny,Cool,Normal,False,Yes
-Rain,Mild,Normal,False,Yes
-Sunny,Mild,Normal,True,Yes
-Overcast,Mild,High,True,Yes
-Overcast,Hot,Normal,False,Yes
-Rain,Mild,High,True,No
+    public void display() {
+        System.out.println("Current conditions: " + temperature + "°C, " + humidity + "% humidity, " + pressure + " hPa");
+    }
+}
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, classification_report
-
-data = pd.read_csv('weather.csv')
-
-print("Dataset Head:\n", data.head())
-
-label_encoders = {}
-for column in data.columns[:-1]:  
-    le = LabelEncoder()
-    data[column] = le.fit_transform(data[column])
-    label_encoders[column] = le
-
-X = data.iloc[:, :-1]  
-y = data.iloc[:, -1]   
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-model = GaussianNB()
-model.fit(X_train, y_train)
-
-y_pred = model.predict(X_test)
-
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy:.2f}\n")
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
+public class WeatherStation {
+    public static void main(String[] args) {
+        WeatherData weatherData = new WeatherData();
+        CurrentConditionsDisplay currentDisplay = new CurrentConditionsDisplay();
+        
+        weatherData.addObserver(currentDisplay);
+        
+        weatherData.setMeasurements(25.3f, 65f, 1013.1f);
+        weatherData.setMeasurements(26.1f, 60f, 1012.5f);
+        weatherData.setMeasurements(27.8f, 55f, 1011.9f);
+    }
+}
 
 
-new_sample = pd.DataFrame({
-    'Outlook': [label_encoders['Outlook'].transform(['Sunny'])[0]],
-    'Temperature': [label_encoders['Temperature'].transform(['Cool'])[0]],
-    'Humidity': [label_encoders['Humidity'].transform(['High'])[0]],
-    'Windy': [label_encoders['Windy'].transform([True])[0]],
-})
+IoT : Programming of Raspberry Pi to detect temperature using temperature
+sensor
 
-prediction = model.predict(new_sample)
-result = label_encoders['Play'].inverse_transform(prediction)
-print(f"Prediction for the new sample (Sunny, Cool, High, True): {result[0]}")
+import Adafruit_DHT
+import time
 
+sensor = Adafruit_DHT.DHT11  
+gpio_pin = 4  
+
+def read_temperature():
+    humidity, temperature = Adafruit_DHT.read_retry(sensor, gpio_pin)
+    if humidity is not None and temperature is not None:
+        print(f"Temperature: {temperature:.1f}°C")
+        print(f"Humidity: {humidity:.1f}%")
+    else:
+        print("Failed to retrieve data from the sensor")
+
+while True:
+    read_temperature()
+    time.sleep(2)  # Wait for 2 seconds before reading again
