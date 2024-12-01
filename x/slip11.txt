@@ -1,0 +1,123 @@
+Q.1) Develop an Express.js application that defines routes for Create operations
+on a resource (Movie). 
+
+npm install express body-parser mongoose
+
+Create the Movie Model (models/movie.js)
+const mongoose = require('mongoose');
+
+const movieSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    director: { type: String, required: true },
+    releaseYear: { type: Number, required: true },
+    genre: { type: String, required: true },
+});
+
+module.exports = mongoose.model('Movie', movieSchema);
+
+ the Routes (routes/movieRoutes.js)
+ 
+ const express = require('express');
+const router = express.Router();
+const Movie = require('../models/movie');
+
+router.post('/movies', async (req, res) => {
+    try {
+        const { title, director, releaseYear, genre } = req.body;
+        const newMovie = new Movie({ title, director, releaseYear, genre });
+        await newMovie.save();
+        res.status(201).json({ message: 'Movie created successfully!', movie: newMovie });
+    } catch (error) {
+        res.status(400).json({ message: 'Error creating movie', error: error.message });
+    }
+});
+
+module.exports = router;
+
+Set Up the App (app.js)
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const movieRoutes = require('./routes/movieRoutes');
+
+const app = express();
+const PORT = 3000;
+
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/moviesDB', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Could not connect to MongoDB', err));
+
+app.use('/api', movieRoutes);
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+
+Q.2) Create Angular application that print the name of students who play basketball
+using filter and map method. 
+
+npm install -g @angular/cli
+ng version
+ng new basketball-students --no-standalone
+cd basketball-students
+ng generate component basketball
+
+
+src/app/basketball/basketball.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-basketball',
+  templateUrl: './basketball.component.html',
+  styleUrls: ['./basketball.component.css']
+})
+export class BasketballComponent {
+  students = [
+    { name: 'Alice', sports: ['Basketball', 'Soccer'] },
+    { name: 'Bob', sports: ['Cricket', 'Tennis'] },
+    { name: 'Charlie', sports: ['Basketball', 'Baseball'] },
+    { name: 'Daisy', sports: ['Hockey', 'Soccer'] },
+    { name: 'Eve', sports: ['Basketball'] },
+  ];
+
+  basketballPlayers = this.students
+    .filter(student => student.sports.includes('Basketball'))
+    .map(student => student.name);
+}
+
+
+src/app/basketball/basketball.component.html
+<h1>Students Who Play Basketball</h1>
+<ul>
+  <li *ngFor="let player of basketballPlayers">{{ player }}</li>
+</ul>
+
+
+File: src/app/app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppComponent } from './app.component';
+import { BasketballComponent } from './basketball/basketball.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    BasketballComponent
+  ],
+  imports: [
+    BrowserModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+File: src/app/app.component.html
+<app-basketball></app-basketball>
+
+ng serve

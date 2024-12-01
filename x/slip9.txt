@@ -1,113 +1,74 @@
-Q9)SAD : Write a JAVA Program to implement built-in support (java.util.Observable)
-Weather Station with members temperature, humidity, pressure and method
-mesurmentsChanged(),setMesurment(), getTemperature(), getHumidity(),
-getPressure()
+Q.1) Find a company with a workforce greater than 30 in the array. (Using find by
+id method). 
 
-import java.util.Observable;
-import java.util.Observer;
 
-class WeatherStation extends Observable {
-    private float temperature;
-    private float humidity;
-    private float pressure;
+const companies = [
+    { id: 1, name: "TechCorp", workforce: 25 },
+    { id: 2, name: "Innovatech", workforce: 35 },
+    { id: 3, name: "GreenSolutions", workforce: 15 },
+    { id: 4, name: "DataDive", workforce: 50 }
+];
 
-    public WeatherStation() {
-        this.temperature = 0.0f;
-        this.humidity = 0.0f;
-        this.pressure = 0.0f;
-    }
+const largeWorkforceCompany = companies.find(company => company.workforce > 30);
 
-    public void measurementsChanged() {
-        setChanged();
-        notifyObservers();
-    }
-
-    public void setMeasurements(float temperature, float humidity, float pressure) {
-        this.temperature = temperature;
-        this.humidity = humidity;
-        this.pressure = pressure;
-        measurementsChanged();
-    }
-
-    public float getTemperature() {
-        return temperature;
-    }
-
-    public float getHumidity() {
-        return humidity;
-    }
-
-    public float getPressure() {
-        return pressure;
-    }
+if (largeWorkforceCompany) {
+    console.log("Company with a workforce greater than 30:", largeWorkforceCompany);
+} else {
+    console.log("No company found with a workforce greater than 30.");
 }
 
-class WeatherDisplay implements Observer {
-    private float temperature;
-    private float humidity;
-    private float pressure;
+Q.2) Create Express.js application to include middleware for parsing request bodies (e.g.,
+JSON, form data) and validating input data. Send appropriate JSON responses for
+success and error cases.
 
-    public WeatherDisplay(WeatherStation weatherStation) {
-        weatherStation.addObserver(this);
+npm install express body-parser
+
+server.js
+
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = 3000;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+function validateInput(req, res, next) {
+    const { username, email, age } = req.body;
+
+    if (!username || typeof username !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing "username"' });
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof WeatherStation) {
-            WeatherStation weatherStation = (WeatherStation) o;
-            this.temperature = weatherStation.getTemperature();
-            this.humidity = weatherStation.getHumidity();
-            this.pressure = weatherStation.getPressure();
-            display();
-        }
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Invalid or missing "email"' });
     }
 
-    public void display() {
-        System.out.println("Current Weather:");
-        System.out.println("Temperature: " + temperature + "°C");
-        System.out.println("Humidity: " + humidity + "%");
-        System.out.println("Pressure: " + pressure + "hPa");
+    if (!age || typeof age !== 'number' || age < 0) {
+        return res.status(400).json({ error: 'Invalid or missing "age"' });
     }
+
+    next(); 
 }
 
-public class WeatherStationApp {
-    public static void main(String[] args) {
-        WeatherStation weatherStation = new WeatherStation();
-        WeatherDisplay weatherDisplay = new WeatherDisplay(weatherStation);
+app.get('/', (req, res) => {
+    res.json({ message: 'Welcome to the Express.js application!' });
+});
 
-        weatherStation.setMeasurements(25.3f, 65.5f, 1013.1f);
-        weatherStation.setMeasurements(26.1f, 70.2f, 1012.8f);
-        weatherStation.setMeasurements(27.8f, 72.5f, 1011.9f);
-    }
-}
+app.post('/register', validateInput, (req, res) => {
+    const { username, email, age } = req.body;
 
-IoT : To write a program to get temperature notification using Arduino
+    res.status(200).json({
+        message: 'User registered successfully!',
+        user: { username, email, age }
+    });
+});
 
-const int temperaturePin = A0; 
-const int ledPin = 13;
-float temperature;
-float threshold = 30.0; 
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
 
-void setup() {
-  pinMode(ledPin, OUTPUT);
-  Serial.begin(9600);
-}
-
-void loop() {
-  int sensorValue = analogRead(temperaturePin);
-  temperature = (sensorValue * 5.0 * 100.0) / 1024.0;  
-  
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.println(" °C");
-  
-  if (temperature > threshold) {
-    digitalWrite(ledPin, HIGH);  
-    Serial.println("Temperature is above threshold! LED ON.");
-  } else {
-    digitalWrite(ledPin, LOW);   
-    Serial.println("Temperature is below threshold. LED OFF.");
-  }
-  
-  delay(1000); 
-}
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

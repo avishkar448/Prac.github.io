@@ -1,78 +1,148 @@
-Q8)SAD : Write a Java Program to implement I/O Decorator for converting uppercase
-letters to lower case letters.
+Q.1) Create a simple Angular application that fetches data from an API using HttpClient.
+Implement an Observable to fetch data from an API endpoint.
 
-import java.io.*;
+npm install -g @angular/cli
+ng new angular-http-example
+cd angular-http-example
 
-class UppercaseToLowercaseDecorator extends FilterReader {
-    public UppercaseToLowercaseDecorator(Reader in) {
-        super(in);
-    }
+src/app/app.module.ts, add the following imports
 
-    @Override
-    public int read() throws IOException {
-        int c = super.read();
-        if (c == -1) {
-            return c;
-        }
-        return Character.toLowerCase(c);
-    }
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http'; // <-- Add this line
 
-    @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
-        int numCharsRead = super.read(cbuf, off, len);
-        if (numCharsRead == -1) {
-            return numCharsRead;
-        }
-        for (int i = off; i < off + numCharsRead; i++) {
-            cbuf[i] = Character.toLowerCase(cbuf[i]);
-        }
-        return numCharsRead;
-    }
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [BrowserModule, HttpClientModule], // <-- Add HttpClientModule here
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+
+cmd-> ng generate service api
+
+src/app/api.service.ts->
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+  private apiUrl = 'https://jsonplaceholder.typicode.com/posts'; // Example API endpoint
+
+  constructor(private http: HttpClient) {}
+
+  // Method to fetch data from API
+  getData(): Observable<any> {
+    return this.http.get(this.apiUrl);
+  }
 }
 
-public class IODecoratorExample {
-    public static void main(String[] args) throws IOException {
-        String inputString = "HELLO WORLD! This is a TEST.";
+src/app/app.component.ts -> 
 
-        StringReader stringReader = new StringReader(inputString);
-        UppercaseToLowercaseDecorator decorator = new UppercaseToLowercaseDecorator(stringReader);
-        BufferedReader bufferedReader = new BufferedReader(decorator);
+import { Component, OnInit } from '@angular/core';
+import { ApiService } from './api.service'; // Import ApiService
 
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            System.out.println(line);
-        }
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+  posts: any[] = []; // Array to hold posts data
 
-        bufferedReader.close();
-    }
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    // Subscribe to the observable from the service to fetch data
+    this.apiService.getData().subscribe((data: any) => {
+      this.posts = data; // Store the fetched data in posts
+    });
+  }
 }
 
 
-IoT : Programming of Raspberry Pi to get feedback from a switch connected to the
-GPIO pins
+src/app/app.component.html ->
 
-import RPi.GPIO as GPIO
-import time
+<div *ngIf="posts.length > 0; else loading">
+  <h2>Posts</h2>
+  <ul>
+    <li *ngFor="let post of posts">
+      <h3>{{ post.title }}</h3>
+      <p>{{ post.body }}</p>
+    </li>
+  </ul>
+</div>
 
-GPIO.setmode(GPIO.BCM)
-
-switch_pin = 17
-
-GPIO.setup(switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-try:
-    while True:
-        # Read the state of the switch (HIGH if pressed, LOW if not)
-        if GPIO.input(switch_pin) == GPIO.HIGH:
-            print("Switch Pressed!")
-        else:
-            print("Switch Released!")
-
-        # Add a small delay to avoid spamming the console
-        time.sleep(0.1)
-
-except KeyboardInterrupt:
-    
-    GPIO.cleanup()
+<ng-template #loading>
+  <p>Loading...</p>
+</ng-template>
 
 
+ng serve
+
+Q.2) Develop an Express.js application that defines routes for Create, Update operations
+on a resource (Employee)
+
+npm install express body-parser
+
+server.js
+
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.json());
+
+let employees = [];
+
+app.post('/employees', (req, res) => {
+  const { name, position, salary } = req.body;
+
+  
+  if (!name || !position || !salary) {
+    return res.status(400).send('Name, position, and salary are required');
+  }
+
+  const newEmployee = {
+    id: employees.length + 1,
+    name,
+    position,
+    salary
+  };
+
+  employees.push(newEmployee);
+  res.status(201).send(newEmployee);
+});
+
+
+app.put('/employees/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, position, salary } = req.body;
+
+ 
+  const employee = employees.find(emp => emp.id === parseInt(id));
+
+  if (!employee) {
+    return res.status(404).send('Employee not found');
+  }
+
+  
+  if (name) employee.name = name;
+  if (position) employee.position = position;
+  if (salary) employee.salary = salary;
+
+  res.status(200).send(employee);
+});
+
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
