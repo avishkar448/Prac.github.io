@@ -17,6 +17,41 @@ if (largeWorkforceCompany) {
     console.log("No company found with a workforce greater than 30.");
 }
 
+(Another program)
+
+const { MongoClient, ObjectId } = require('mongodb');
+
+const url = 'mongodb://localhost:27017';
+const dbName = 'companyDatabase';
+
+async function findCompanyById() {
+  const client = new MongoClient(url);
+
+  try {
+    await client.connect();
+    console.log("Connected to the database");
+
+    const db = client.db(dbName);
+    const companies = db.collection('companies');
+
+    const companyId = "someObjectId"; 
+    const company = await companies.findById(ObjectId(companyId));
+
+    if (company && company.workforce > 30) {
+      console.log("Company with workforce greater than 30:", company);
+    } else {
+      console.log("No such company found or workforce is not greater than 30.");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  } finally {
+    await client.close();
+  }
+}
+
+findCompanyById();
+
+
 Q.2) Create Express.js application to include middleware for parsing request bodies (e.g.,
 JSON, form data) and validating input data. Send appropriate JSON responses for
 success and error cases.
